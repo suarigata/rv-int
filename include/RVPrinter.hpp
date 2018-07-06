@@ -9,7 +9,7 @@ using namespace dbt::RVDecoder;
 
 namespace dbt {
   namespace RVPrinter {
-    static std::string getString(OIInst I) {
+    static std::string getString(RVInst I) {
       std::ostringstream Out;
       switch (I.Type) {
         case Absd:
@@ -389,9 +389,9 @@ namespace dbt {
       switch (dbt::RVDecoder::getEncodingType(I.Type)) {
         // TODO PL26ij and PL20i
         case EncodingType::PL26i:
-          if (I.Type == OIInstType::Ldw || I.Type == OIInstType::Stw)
+          if (I.Type == RVInstType::Ldw || I.Type == RVInstType::Stw)
             Out << "  $" << (uint32_t) I.RT << ", " << I.Imm << "($" << (uint32_t) I.RS << ")";
-          else if (I.Type == OIInstType::Jne || I.Type == OIInstType::Jnez || I.Type == OIInstType::Jeq || I.Type == OIInstType::Jeqz)
+          else if (I.Type == RVInstType::Jne || I.Type == RVInstType::Jnez || I.Type == RVInstType::Jeq || I.Type == RVInstType::Jeqz)
             Out << "  $" << (uint32_t) I.RT << ", $" << (uint32_t) I.RS << ", " << ((I.Imm << 2) + 4);
           else
             Out << "  $" << (uint32_t) I.RT << ", $" << (uint32_t) I.RS << ", " << I.Imm;
@@ -409,7 +409,7 @@ namespace dbt {
           Out << "  $" << (uint32_t) I.RS << ", $" << (uint32_t) I.RT;
           break;
         case EncodingType::PL20:
-          if (I.Type == OIInstType::Jlez || I.Type == OIInstType::Jgtz || I.Type == OIInstType::Jltz || I.Type == OIInstType::Jgez)
+          if (I.Type == RVInstType::Jlez || I.Type == RVInstType::Jgtz || I.Type == RVInstType::Jltz || I.Type == RVInstType::Jgez)
             Out << " $" << (uint32_t) I.RT << ", " << ((I.Imm << 2) + 4);
           else
             Out << " $" << (uint32_t) I.RT << ", " << I.Imm;

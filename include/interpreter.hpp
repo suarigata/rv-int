@@ -23,7 +23,7 @@ namespace dbt {
   private:
     uint32_t LastStartAddrs, LastEndAddrs;
     std::vector<int*> DispatchValues;
-    std::vector<RVDecoder::OIInst> DecodedInsts;
+    std::vector<RVDecoder::RVInst> DecodedInsts;
 
     bool isAddrsContainedIn(uint32_t, uint32_t);
 
@@ -32,8 +32,8 @@ namespace dbt {
     void* getDispatchValue(uint32_t);
     void setDispatchValue(uint32_t, int*);
 
-    RVDecoder::OIInst getDecodedInst(uint32_t);
-    void setDecodedInst(uint32_t, RVDecoder::OIInst);
+    RVDecoder::RVInst getDecodedInst(uint32_t);
+    void setDecodedInst(uint32_t, RVDecoder::RVInst);
   public:
     ITDInterpreter(SyscallManager& SM) : Interpreter(SM) {}
 

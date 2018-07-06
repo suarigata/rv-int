@@ -95,18 +95,18 @@ void ITDInterpreter::setDispatchValue(uint32_t Addrs, int* Target) {
   DispatchValues[(Addrs-LastStartAddrs)/4] = Target;
 }
 
-inline OIInst ITDInterpreter::getDecodedInst(uint32_t Addrs) {
+inline RVInst ITDInterpreter::getDecodedInst(uint32_t Addrs) {
   return DecodedInsts[(Addrs-LastStartAddrs)/4];
 }
 
-void ITDInterpreter::setDecodedInst(uint32_t Addrs, OIInst DI) {
+void ITDInterpreter::setDecodedInst(uint32_t Addrs, RVInst DI) {
   DecodedInsts[(Addrs-LastStartAddrs)/4] = DI;
 }
 
 void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs) {
   for (uint32_t Addrs = StartAddrs; Addrs < EndAddrs; Addrs+=4) {
     Word W = M.getInstAt(Addrs);
-    OIInst I = decode(W.asI_);
+    RVInst I = decode(W.asI_);
     switch(I.Type) {
       SET_DISPACH(Addrs, Absd,    &&absd);
       SET_DISPACH(Addrs, Abss,    &&abss);
@@ -240,7 +240,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
 
   // ---------------------------------------- Trampoline Zone ------------------------------------------ //
 
-  OIInst I;
+  RVInst I;
   GOTO_NEXT;
 
   IMPLEMENT(nop, );
