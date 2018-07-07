@@ -108,130 +108,113 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
     Word W = M.getInstAt(Addrs);
     RVInst I = decode(W.asI_);
     switch(I.Type) {
-      SET_DISPACH(Addrs, Absd,    &&absd);
-      SET_DISPACH(Addrs, Abss,    &&abss);
-      SET_DISPACH(Addrs, Add,     &&add);
-      SET_DISPACH(Addrs, Sub,     &&sub);
-      SET_DISPACH(Addrs, Ldihi,   &&ldihi);
-      SET_DISPACH(Addrs, And,     &&and_);
-      SET_DISPACH(Addrs, Andi,    &&andi);
-      SET_DISPACH(Addrs, Or,      &&or_);
-      SET_DISPACH(Addrs, Nor,     &&nor);
-      SET_DISPACH(Addrs, Ldh,     &&ldh);
-      SET_DISPACH(Addrs, Ldi,     &&ldi);
-      SET_DISPACH(Addrs, Ldw,     &&ldw);
-      SET_DISPACH(Addrs, Addi,    &&addi);
-      SET_DISPACH(Addrs, Call,    &&call);
-      SET_DISPACH(Addrs, Callr,   &&callr);
-      SET_DISPACH(Addrs, Jumpr,   &&jumpr);
-      SET_DISPACH(Addrs, Stw,     &&stw);
-      SET_DISPACH(Addrs, Sltiu,   &&sltiu);
-      SET_DISPACH(Addrs, Slti,    &&slti);
-      SET_DISPACH(Addrs, Sltu,    &&sltu);
-      SET_DISPACH(Addrs, Slt,     &&slt);
-      SET_DISPACH(Addrs, Jeq,     &&jeq);
-      SET_DISPACH(Addrs, Jeqz,    &&jeqz);
-      SET_DISPACH(Addrs, Jgtz,    &&jgtz);
-      SET_DISPACH(Addrs, Jgez,    &&jgez);
-      SET_DISPACH(Addrs, Jlez,    &&jlez);
-      SET_DISPACH(Addrs, Jltz,    &&jltz);
-      SET_DISPACH(Addrs, Jne,     &&jne);
-      SET_DISPACH(Addrs, Jnez,    &&jnez);
-      SET_DISPACH(Addrs, Jump,    &&jump);
-      SET_DISPACH(Addrs, Mul,     &&mul);
-      SET_DISPACH(Addrs, Mulu,    &&mulu);
-      SET_DISPACH(Addrs, Div,     &&div);
-      SET_DISPACH(Addrs, Mod,     &&mod);
-      SET_DISPACH(Addrs, Divu,    &&divu);
-      SET_DISPACH(Addrs, Modu,    &&modu);
-      SET_DISPACH(Addrs, Syscall, &&syscall);
-      SET_DISPACH(Addrs, Shr,     &&shr);
-      SET_DISPACH(Addrs, Asr,     &&asr);
-      SET_DISPACH(Addrs, Asrr,     &&asrr);
-      SET_DISPACH(Addrs, Shl,     &&shl);
-      SET_DISPACH(Addrs, Shlr,    &&shlr);
-      SET_DISPACH(Addrs, Shrr,    &&shrr);
-      SET_DISPACH(Addrs, Movn,    &&movn);
-      SET_DISPACH(Addrs, Movz,    &&movz);
-      SET_DISPACH(Addrs, Ror,     &&ror);
-      SET_DISPACH(Addrs, Ori,     &&ori);
-      SET_DISPACH(Addrs, Xori,    &&xori);
-      SET_DISPACH(Addrs, Xor,     &&xor_);
-      SET_DISPACH(Addrs, Stb,     &&stb);
-      SET_DISPACH(Addrs, Ldb,     &&ldb);
-      SET_DISPACH(Addrs, Ldbu,    &&ldbu);
-      SET_DISPACH(Addrs, Ldhu,    &&ldhu);
-      SET_DISPACH(Addrs, Sth,     &&sth);
-      SET_DISPACH(Addrs, Seh,     &&seh);
-      SET_DISPACH(Addrs, Seb,     &&seb);
-      SET_DISPACH(Addrs, Ijmphi,  &&ijmphi);
-      SET_DISPACH(Addrs, Ijmp,    &&ijmp);
-      SET_DISPACH(Addrs, Ldc1,    &&ldc1);
-      SET_DISPACH(Addrs, Sdc1,    &&sdc1);
-      SET_DISPACH(Addrs, Sdxc1,   &&sdxc1);
-      SET_DISPACH(Addrs, Ldxc1,   &&ldxc1);
-      SET_DISPACH(Addrs, Mtlc1,   &&mtlc1);
-      SET_DISPACH(Addrs, Mthc1,   &&mthc1);
-      SET_DISPACH(Addrs, Ceqs,    &&ceqs);
-      SET_DISPACH(Addrs, Ceqd,    &&ceqd);
-      SET_DISPACH(Addrs, Bc1f,    &&bc1f);
-      SET_DISPACH(Addrs, Bc1t,    &&bc1t);
-      SET_DISPACH(Addrs, Movd,    &&movd);
-      SET_DISPACH(Addrs, Movf,    &&movf);
-      SET_DISPACH(Addrs, Movt,    &&movt);
-      SET_DISPACH(Addrs, Movts,   &&movts);
-      SET_DISPACH(Addrs, Movs,    &&movs);
-      SET_DISPACH(Addrs, Movzd,   &&movzd);
-      SET_DISPACH(Addrs, Movzs,   &&movzs);
-      SET_DISPACH(Addrs, Movnd,   &&movnd);
-      SET_DISPACH(Addrs, Movns,   &&movns);
-      SET_DISPACH(Addrs, Movtd,   &&movtd);
-      SET_DISPACH(Addrs, Movfd,   &&movfd);
-      SET_DISPACH(Addrs, Movfs,   &&movfs);
-      SET_DISPACH(Addrs, Lwc1,    &&lwc1);
-      SET_DISPACH(Addrs, Adds,    &&adds);
-      SET_DISPACH(Addrs, Addd,    &&addd);
-      SET_DISPACH(Addrs, Maddd,   &&maddd);
-      SET_DISPACH(Addrs, Mtc1,    &&mtc1);
-      SET_DISPACH(Addrs, Mfc1,    &&mfc1);
-      SET_DISPACH(Addrs, Truncws, &&truncws);
-      SET_DISPACH(Addrs, Truncwd, &&truncwd);
-      SET_DISPACH(Addrs, Cvtsw,   &&cvtsw);
-      SET_DISPACH(Addrs, Cvtdw,   &&cvtdw);
-      SET_DISPACH(Addrs, Cvtds,   &&cvtds);
-      SET_DISPACH(Addrs, Cvtsd,   &&cvtsd);
-      SET_DISPACH(Addrs, Lwxc1,   &&lwxc1);
-      SET_DISPACH(Addrs, Swc1,    &&swc1);
-      SET_DISPACH(Addrs, Swxc1,   &&swxc1);
-      SET_DISPACH(Addrs, Muls,    &&muls);
-      SET_DISPACH(Addrs, Muld,    &&muld);
-      SET_DISPACH(Addrs, Coltd,   &&coltd);
-      SET_DISPACH(Addrs, Colts,   &&colts);
-      SET_DISPACH(Addrs, Coled,   &&coled);
-      SET_DISPACH(Addrs, Coles,   &&coles);
-      SET_DISPACH(Addrs, Culed,   &&culed);
-      SET_DISPACH(Addrs, Cults,   &&cults);
-      SET_DISPACH(Addrs, Cultd,   &&cultd);
-      SET_DISPACH(Addrs, Cules,   &&cules);
-      SET_DISPACH(Addrs, Cuns,    &&cuns);
-      SET_DISPACH(Addrs, Cueqs,   &&cueqs);
-      SET_DISPACH(Addrs, Cueqd,   &&cueqd);
-      SET_DISPACH(Addrs, Cund,    &&cund);
-      SET_DISPACH(Addrs, Negd,    &&negd);
-      SET_DISPACH(Addrs, Negs,    &&negs);
-      SET_DISPACH(Addrs, Divs,    &&divs);
-      SET_DISPACH(Addrs, Divd,    &&divd);
-      SET_DISPACH(Addrs, Subd,    &&subd);
-      SET_DISPACH(Addrs, Subs,    &&subs);
-      SET_DISPACH(Addrs, Mflc1,   &&mflc1);
-      SET_DISPACH(Addrs, Mfhc1,   &&mfhc1);
-      SET_DISPACH(Addrs, Msubs,   &&msubs);
-      SET_DISPACH(Addrs, Msubd,   &&msubd);
-      SET_DISPACH(Addrs, Madds,   &&madds);
-      SET_DISPACH(Addrs, Sqrts,   &&sqrts);
-      SET_DISPACH(Addrs, Sqrtd,   &&sqrtd);
-      SET_DISPACH(Addrs, Ext,     &&ext);
-      SET_DISPACH(Addrs, Nop,     &&nop);
+      SET_DISPACH(Addrs, LUI, &&lui);
+      SET_DISPACH(Addrs, AUIPC, &&auipc);
+      SET_DISPACH(Addrs, JAL, &&jal);
+      SET_DISPACH(Addrs, JALR, &&jalr);
+      SET_DISPACH(Addrs, BEQ, &&beq);
+      SET_DISPACH(Addrs, BNE, &&bne);
+      SET_DISPACH(Addrs, BLT, &&blt);
+      SET_DISPACH(Addrs, BGE, &&bge);
+      SET_DISPACH(Addrs, BLTU, &&bltu);
+      SET_DISPACH(Addrs, BGEU, &&bgeu);
+      SET_DISPACH(Addrs, LB, &&lb);
+      SET_DISPACH(Addrs, LH, &&lh);
+      SET_DISPACH(Addrs, LW, &&lw);
+      SET_DISPACH(Addrs, LBU, &&lbu);
+      SET_DISPACH(Addrs, LHU, &&lhu);
+      SET_DISPACH(Addrs, SB, &&sb);
+      SET_DISPACH(Addrs, SH, &&sh);
+      SET_DISPACH(Addrs, SW, &&sw);
+      SET_DISPACH(Addrs, ADDI, &&addi);
+      SET_DISPACH(Addrs, SLTI, &&slti);
+      SET_DISPACH(Addrs, SLTIU, &&sltiu);
+      SET_DISPACH(Addrs, XORI, &&xori);
+      SET_DISPACH(Addrs, ORI, &&ori);
+      SET_DISPACH(Addrs, ANDI, &&andi);
+      SET_DISPACH(Addrs, SLLI, &&slli);
+      SET_DISPACH(Addrs, SRLI, &&srli);
+      SET_DISPACH(Addrs, SRAI, &&srai);
+      SET_DISPACH(Addrs, ADD, &&add);
+      SET_DISPACH(Addrs, SUB, &&sub);
+      SET_DISPACH(Addrs, SLL, &&sll);
+      SET_DISPACH(Addrs, SLT, &&slt);
+      SET_DISPACH(Addrs, SLTU, &&sltu);
+      SET_DISPACH(Addrs, XOR, &&_xor);
+      SET_DISPACH(Addrs, SRL, &&srl);
+      SET_DISPACH(Addrs, SRA, &&sra);
+      SET_DISPACH(Addrs, OR, &&_or);
+      SET_DISPACH(Addrs, AND, &&_and);
+      SET_DISPACH(Addrs, FENCE, &&fence);
+      SET_DISPACH(Addrs, FENCE_I, &&fence_i);
+      SET_DISPACH(Addrs, ECALL, &&ecall);
+      SET_DISPACH(Addrs, EBREAK, &&ebreak);
+      SET_DISPACH(Addrs, CSRRW, &&csrrw);
+      SET_DISPACH(Addrs, CSRRS, &&csrrs);
+      SET_DISPACH(Addrs, CSRRC, &&csrrc);
+      SET_DISPACH(Addrs, CSRRWI, &&csrrwi);
+      SET_DISPACH(Addrs, CSRRSI, &&csrrsi);
+      SET_DISPACH(Addrs, CSRRCI, &&csrrci);
+      SET_DISPACH(Addrs, MUL, &&mul);
+      SET_DISPACH(Addrs, MULH, &&mulh);
+      SET_DISPACH(Addrs, MULHSU, &&mulhsu);
+      SET_DISPACH(Addrs, MULHU, &&mulhu);
+      SET_DISPACH(Addrs, DIV, &&div);
+      SET_DISPACH(Addrs, DIVU, &&divu);
+      SET_DISPACH(Addrs, REM, &&rem);
+      SET_DISPACH(Addrs, REMU, &&remu);
+      SET_DISPACH(Addrs, FLW, &&flw);
+      SET_DISPACH(Addrs, FSW, &&fsw);
+      SET_DISPACH(Addrs, FMADD_S, &&fmadd_s);
+      SET_DISPACH(Addrs, FMSUB_S, &&fmsub_s);
+      SET_DISPACH(Addrs, FNMSUB_S, &&fnmsub_s);
+      SET_DISPACH(Addrs, FNMADD_S, &&fnmadd_s);
+      SET_DISPACH(Addrs, FADD_S, &&fadd_s);
+      SET_DISPACH(Addrs, FSUB_S, &&fsub_s);
+      SET_DISPACH(Addrs, FMUL_S, &&fmul_s);
+      SET_DISPACH(Addrs, FDIV_S, &&fdiv_s);
+      SET_DISPACH(Addrs, FSQRT_S, &&fsqrt_s);
+      SET_DISPACH(Addrs, FSGNJ_S, &&fsgnj_s);
+      SET_DISPACH(Addrs, FSGNJN_S, &&fsgnjn_s);
+      SET_DISPACH(Addrs, FSGNJX_S, &&fsgnjx_s);
+      SET_DISPACH(Addrs, FMIN_S, &&fmin_s);
+      SET_DISPACH(Addrs, FMAX_S, &&fmax_s);
+      SET_DISPACH(Addrs, FCVT_W_S, &&fcvt_w_s);
+      SET_DISPACH(Addrs, FCVT_WU_S, &&fcvt_wu_s);
+      SET_DISPACH(Addrs, FMV_X_W, &&fmv_x_w);
+      SET_DISPACH(Addrs, FEQ_S, &&feq_s);
+      SET_DISPACH(Addrs, FLT_S, &&flt_s);
+      SET_DISPACH(Addrs, FLE_S, &&fle_s);
+      SET_DISPACH(Addrs, FCLASS_S, &&fclass_s);
+      SET_DISPACH(Addrs, FCVT_S_W, &&fcvt_s_w);
+      SET_DISPACH(Addrs, FCVT_S_WU, &&fcvt_s_wu);
+      SET_DISPACH(Addrs, FMV_W_X, &&fmv_w_x);
+      SET_DISPACH(Addrs, FLD, &&fld);
+      SET_DISPACH(Addrs, FSD, &&fsd);
+      SET_DISPACH(Addrs, FMADD_D, &&fmadd_d);
+      SET_DISPACH(Addrs, FMSUB_D, &&fmsub_d);
+      SET_DISPACH(Addrs, FNMSUB_D, &&fnmsub_d);
+      SET_DISPACH(Addrs, FNMADD_D, &&fnmadd_d);
+      SET_DISPACH(Addrs, FADD_D, &&fadd_d);
+      SET_DISPACH(Addrs, FSUB_D, &&fsub_d);
+      SET_DISPACH(Addrs, FMUL_D, &&fmul_d);
+      SET_DISPACH(Addrs, FDIV_D, &&fdiv_d);
+      SET_DISPACH(Addrs, FSQRT_D, &&fsqrt_d);
+      SET_DISPACH(Addrs, FSGNJ_D, &&fsgnj_d);
+      SET_DISPACH(Addrs, FSGNJN_D, &&fsgnjn_d);
+      SET_DISPACH(Addrs, FSGNJX_D, &&fsgnjx_d);
+      SET_DISPACH(Addrs, FMIN_D, &&fmin_d);
+      SET_DISPACH(Addrs, FMAX_D, &&fmax_d);
+      SET_DISPACH(Addrs, FCVT_S_D, &&fcvt_s_d);
+      SET_DISPACH(Addrs, FCVT_D_S, &&fcvt_d_s);
+      SET_DISPACH(Addrs, FEQ_D, &&feq_d);
+      SET_DISPACH(Addrs, FLT_D, &&flt_d);
+      SET_DISPACH(Addrs, FLE_D, &&fle_d);
+      SET_DISPACH(Addrs, FCLASS_D, &&fclass_d);
+      SET_DISPACH(Addrs, FCVT_W_D, &&fcvt_w_d);
+      SET_DISPACH(Addrs, FCVT_WU_D, &&fcvt_wu_d);
+      SET_DISPACH(Addrs, FCVT_D_W, &&fcvt_d_w);
+      SET_DISPACH(Addrs, FCVT_D_WU, &&fcvt_d_wu);
       case Null:
         exit(1);
     }
@@ -243,9 +226,440 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   RVInst I;
   GOTO_NEXT;
 
-  IMPLEMENT(nop, );
+//  IMPLEMENT(nop, ); TODO sem nop?
 
   /**********************   Int Inst   **************************/
+
+  IMPLEMENT(lui,
+    
+  );
+
+  IMPLEMENT(auipc,
+    
+  );
+
+  IMPLEMENT(jal,
+    
+  );
+
+  IMPLEMENT(jalr,
+    
+  );
+
+  IMPLEMENT(beq,
+    
+  );
+
+  IMPLEMENT(bne,
+    
+  );
+
+  IMPLEMENT(blt,
+    
+  );
+
+  IMPLEMENT(bge,
+    
+  );
+
+  IMPLEMENT(bltu,
+    
+  );
+
+  IMPLEMENT(bgeu,
+    
+  );
+
+  IMPLEMENT(lb,
+    
+  );
+
+  IMPLEMENT(lh,
+    
+  );
+
+  IMPLEMENT(lw,
+    
+  );
+
+  IMPLEMENT(lbu,
+    
+  );
+
+  IMPLEMENT(lhu,
+    
+  );
+
+  IMPLEMENT(sb,
+    
+  );
+
+  IMPLEMENT(sh,
+    
+  );
+
+  IMPLEMENT(sw,
+    
+  );
+
+  IMPLEMENT(addi,
+    
+  );
+
+  IMPLEMENT(slti,
+    
+  );
+
+  IMPLEMENT(sltiu,
+    
+  );
+
+  IMPLEMENT(xori,
+    
+  );
+
+  IMPLEMENT(ori,
+    
+  );
+
+  IMPLEMENT(andi,
+    
+  );
+
+  IMPLEMENT(slli,
+    
+  );
+
+  IMPLEMENT(srli,
+    
+  );
+
+  IMPLEMENT(srai,
+    
+  );
+
+  IMPLEMENT(add,
+    
+  );
+
+  IMPLEMENT(sub,
+    
+  );
+
+  IMPLEMENT(sll,
+    
+  );
+
+  IMPLEMENT(slt,
+    
+  );
+
+  IMPLEMENT(sltu,
+    
+  );
+
+  IMPLEMENT(_xor,
+    
+  );
+
+  IMPLEMENT(srl,
+    
+  );
+
+  IMPLEMENT(sra,
+    
+  );
+
+  IMPLEMENT(_or,
+    
+  );
+
+  IMPLEMENT(_and,
+    
+  );
+
+  IMPLEMENT(fence,
+    
+  );
+
+  IMPLEMENT(fence_i,
+    
+  );
+
+  IMPLEMENT(ecall,
+    
+  );
+
+  IMPLEMENT(ebreak,
+    
+  );
+
+  IMPLEMENT(csrrw,
+    
+  );
+
+  IMPLEMENT(csrrs,
+    
+  );
+
+  IMPLEMENT(csrrc,
+    
+  );
+
+  IMPLEMENT(csrrwi,
+    
+  );
+
+  IMPLEMENT(csrrsi,
+    
+  );
+
+  IMPLEMENT(csrrci,
+    
+  );
+
+  IMPLEMENT(mul,
+    
+  );
+
+  IMPLEMENT(mulh,
+    
+  );
+
+  IMPLEMENT(mulhsu,
+    
+  );
+
+  IMPLEMENT(mulhu,
+    
+  );
+
+  IMPLEMENT(div,
+    
+  );
+
+  IMPLEMENT(divu,
+    
+  );
+
+  IMPLEMENT(rem,
+    
+  );
+
+  IMPLEMENT(remu,
+    
+  );
+
+  IMPLEMENT(flw,
+    
+  );
+
+  IMPLEMENT(fsw,
+    
+  );
+
+  IMPLEMENT(fmadd_s,
+    
+  );
+
+  IMPLEMENT(fmsub_s,
+    
+  );
+
+  IMPLEMENT(fnmsub_s,
+    
+  );
+
+  IMPLEMENT(fnmadd_s,
+    
+  );
+
+  IMPLEMENT(fadd_s,
+    
+  );
+
+  IMPLEMENT(fsub_s,
+    
+  );
+
+  IMPLEMENT(fmul_s,
+    
+  );
+
+  IMPLEMENT(fdiv_s,
+    
+  );
+
+  IMPLEMENT(fsqrt_s,
+    
+  );
+
+  IMPLEMENT(fsgnj_s,
+    
+  );
+
+  IMPLEMENT(fsgnjn_s,
+    
+  );
+
+  IMPLEMENT(fsgnjx_s,
+    
+  );
+
+  IMPLEMENT(fmin_s,
+    
+  );
+
+  IMPLEMENT(fmax_s,
+    
+  );
+
+  IMPLEMENT(fcvt_w_s,
+    
+  );
+
+  IMPLEMENT(fcvt_wu_s,
+    
+  );
+
+  IMPLEMENT(fmv_x_w,
+    
+  );
+
+  IMPLEMENT(feq_s,
+    
+  );
+
+  IMPLEMENT(flt_s,
+    
+  );
+
+  IMPLEMENT(fle_s,
+    
+  );
+
+  IMPLEMENT(fclass_s,
+    
+  );
+
+  IMPLEMENT(fcvt_s_w,
+    
+  );
+
+  IMPLEMENT(fcvt_s_wu,
+    
+  );
+
+  IMPLEMENT(fmv_w_x,
+    
+  );
+
+  IMPLEMENT(fld,
+    
+  );
+
+  IMPLEMENT(fsd,
+    
+  );
+
+  IMPLEMENT(fmadd_d,
+    
+  );
+
+  IMPLEMENT(fmsub_d,
+    
+  );
+
+  IMPLEMENT(fnmsub_d,
+    
+  );
+
+  IMPLEMENT(fnmadd_d,
+    
+  );
+
+  IMPLEMENT(fadd_d,
+    
+  );
+
+  IMPLEMENT(fsub_d,
+    
+  );
+
+  IMPLEMENT(fmul_d,
+    
+  );
+
+  IMPLEMENT(fdiv_d,
+    
+  );
+
+  IMPLEMENT(fsqrt_d,
+    
+  );
+
+  IMPLEMENT(fsgnj_d,
+    
+  );
+
+  IMPLEMENT(fsgnjn_d,
+    
+  );
+
+  IMPLEMENT(fsgnjx_d,
+    
+  );
+
+  IMPLEMENT(fmin_d,
+    
+  );
+
+  IMPLEMENT(fmax_d,
+    
+  );
+
+  IMPLEMENT(fcvt_s_d,
+    
+  );
+
+  IMPLEMENT(fcvt_d_s,
+    
+  );
+
+  IMPLEMENT(feq_d,
+    
+  );
+
+  IMPLEMENT(flt_d,
+    
+  );
+
+  IMPLEMENT(fle_d,
+    
+  );
+
+  IMPLEMENT(fclass_d,
+    
+  );
+
+  IMPLEMENT(fcvt_w_d,
+    
+  );
+
+  IMPLEMENT(fcvt_wu_d,
+    
+  );
+
+  IMPLEMENT(fcvt_d_w,
+    
+  );
+
+  IMPLEMENT(fcvt_d_wu,
+    
+  );
+
+// TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
+
 
   IMPLEMENT(add,
 
@@ -885,3 +1299,5 @@ void ITDInterpreter::execute(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs)
 
   dispatch(M, StartAddrs, EndAddrs);
 }
+
+
