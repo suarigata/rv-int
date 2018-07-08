@@ -166,6 +166,7 @@ EncodingType dbt::RVDecoder::getEncodingType(RVInstType InstType) {
     case RVInstType::FNMSUB_D:
     case RVInstType::FNMADD_D:
       return EncodingType::ER4;
+    default:;
   }
 
   std::cout << "Dammit! We have a bug on Encoding types!\n";
@@ -227,7 +228,8 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
   W.asI_ = CodedInst;
   uint8_t Op = W.asI_ & 0x7F;
   RVInst I;
-
+  I.Type = RVInstType::Null;
+  
   switch(Op){
     case 0b0110111: I.Type = RVInstType::LUI;	break; // LUI
     case 0b0010111: I.Type = RVInstType::AUIPC;	break; // AUIPC
@@ -318,13 +320,13 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
     case 0b0100111:
       I.Type = ((getF3(W) & 0x1) ? RVInstType::FSD : RVInstType::FSW); break;
     case 0b1000011:
-      I.Type = ((getF2(W)) ? RVInstType::FMADD_D : RVInstType::FMADD_F); break;
+      I.Type = ((getF2(W)) ? RVInstType::FMADD_D : RVInstType::FMADD_S); break;
     case 0b1000111:
-      I.Type = ((getF2(W)) ? RVInstType::FMSUB_D : RVInstType::FMSUB_F); break;
+      I.Type = ((getF2(W)) ? RVInstType::FMSUB_D : RVInstType::FMSUB_S); break;
     case 0b1001011:
-      I.Type = ((getF2(W)) ? RVInstType::FNMSUB_D : RVInstType::FNMSUB_F); break;
+      I.Type = ((getF2(W)) ? RVInstType::FNMSUB_D : RVInstType::FNMSUB_S); break;
     case 0b1001111:
-      I.Type = ((getF2(W)) ? RVInstType::FNMADD_D : RVInstType::FNMADD_F); break;
+      I.Type = ((getF2(W)) ? RVInstType::FNMADD_D : RVInstType::FNMADD_S); break;
     case 0b1010011:
       switch(getF7(W)){
         case 0b0000000: I.Type = RVInstType::FADD_S;	break; // FADD_S
@@ -385,23 +387,22 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
         case 0b1111000: I.Type = RVInstType::FMV_W_X;	break; // FMV_W_X
       }
       break;
-    
-    default:
-      I.Type = RVInstType::Null;
   }
 
+  std::cout << std::hex << W.asI_ << "\n";
   if (I.Type == RVInstType::Null) {
-    std::cout << "Houston: we have a problem! Inst (" << std::hex << CodedInst << ") not implemented! \n";
+    std::cout << "Houston: we have a problem! Inst (" << std::hex << CodedInst << ") not implemented! " << ((W.asI_ >> 24) & 0x7F) << " \n";
     exit(1);
   }
-
+  
   dbt::RVDecoder::fillFields(I, dbt::RVDecoder::getEncodingType(I.Type), W);
 
+/* TODO ver se isso é importante
   if (!CallZero && I.Type == Call && (I.Addrs << 2) == 0) { // TODO Call?
     std::cerr << "Pay attention! Something must have been linked wrongly, a call 0 was found! Maybe a -lm missing?\n";
     CallZero = true;
   }
-
+//*/
   return I;
 }
 

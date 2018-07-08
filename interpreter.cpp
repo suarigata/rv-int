@@ -77,6 +77,7 @@ static inline int32_t extend_signal(int32_t value, char type){
     case 'B': return (value & 0x1000?0xFFFFE000|value:value);
     case 'J': return (value & 0x100000?0xFFE00000|value:value);
   }
+  return 0;
 }
 
 typedef union DWordBit {
@@ -249,7 +250,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
 
   IMPLEMENT_JMP(jal,
     M.setRegister(I.RD, M.getPC() + 4);
-    M.setPC(M.getPC() + extend_signal(I.Imm, 'J');
+    M.setPC(M.getPC() + extend_signal(I.Imm, 'J'));
   );
 
   IMPLEMENT_JMP(jalr,
@@ -260,14 +261,14 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
 
   IMPLEMENT_BR(beq,
     if(M.getRegister(I.RS1) == M.getRegister(I.RS2)){ // TODO +4 XXX ???
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bne,
     if(M.getRegister(I.RS1) != M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
     
@@ -275,28 +276,28 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
 
   IMPLEMENT_BR(blt,
     if(M.getRegister(I.RS1) < M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bge,
     if(M.getRegister(I.RS1) >= M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bltu,
     if((uint32_t)M.getRegister(I.RS1) < (uint32_t)M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bgeu,
     if((uint32_t)M.getRegister(I.RS1) >= (uint32_t)M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
       GOTO_NEXT;
     }
   );
@@ -404,7 +405,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   IMPLEMENT(sra,
     int32_t _REG1=M.getRegister(I.RS1);
     int32_t _REG2=M.getRegister(I.RS2) & 0x1F;
-    M.setRegister(I.RD, ((_REG1 & 0x80000000) ? (_REG1 >> _REG2) | (0xFFFFFFFF << (32-_REG2)) : _REG >> _REG2));
+    M.setRegister(I.RD, ((_REG1 & 0x80000000) ? (_REG1 >> _REG2) | (0xFFFFFFFF << (32-_REG2)) : _REG1 >> _REG2));
   );
 
   IMPLEMENT(_or,
@@ -460,31 +461,31 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(mulh,
-    
+      M.setRegister(I.RD, (int32_t)(((int64_t)(M.getRegister(I.RS1)) * (int64_t)(M.getRegister(I.RS2))) >> 32));
   );
 
   IMPLEMENT(mulhsu,
-    
+      M.setRegister(I.RD, (int32_t)(((int64_t)(int32_t)(M.getRegister(I.RS1)) * (uint64_t)(uint32_t)(M.getRegister(I.RS2))) >> 32));
   );
 
   IMPLEMENT(mulhu,
-    
+      M.setRegister(I.RD, (int32_t)(((uint64_t)(uint32_t)(M.getRegister(I.RS1)) * (uint64_t)(uint32_t)(M.getRegister(I.RS2))) >> 32));
   );
 
   IMPLEMENT(div,
-    
+      M.setRegister(I.RD, M.getRegister(I.RS1) / M.getRegister(I.RS2));
   );
 
   IMPLEMENT(divu,
-    
+      M.setRegister(I.RD, (int32_t)((uint32_t)(M.getRegister(I.RS1)) / (uint32_t)(M.getRegister(I.RS2))));
   );
 
   IMPLEMENT(rem,
-    
+      M.setRegister(I.RD, M.getRegister(I.RS1) % M.getRegister(I.RS2));
   );
 
   IMPLEMENT(remu,
-    
+      M.setRegister(I.RD, (int32_t)((uint32_t)(M.getRegister(I.RS1)) % (uint32_t)(M.getRegister(I.RS2))));
   );
 
   IMPLEMENT(flw,
