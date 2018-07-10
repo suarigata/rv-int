@@ -24,7 +24,8 @@ uint64_t instacc = 0;
 //#define DEBUG_PRINT(Addr, Inst) std::cerr << "\n" << COLOR_CYAN <<  std::dec << (++instacc) <<" -- "<< std::hex << Addr << "\t" << RVPrinter::getString(Inst) << std::dec << COLOR_NONE << "\t";
 //#define DEBUG_PRINT(Addr, Inst) std::cerr << "\n" << COLOR_CYAN <<  std::dec << (++instacc) <<" -- "<< std::hex << Addr << "\t" << RVPrinter::getString(Inst) << std::dec << COLOR_NONE << "\t";
 #else
-#define DEBUG_PRINT(Addr, Inst)
+#define DEBUG_PRINT(Addr, Inst)\
+  std::cout << "Addr:" << Addr << "\n";
 #endif
 
 #define SET_DISPACH(Addrs, Label, Offset)\
@@ -251,6 +252,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   IMPLEMENT_JMP(jal,
     M.setRegister(I.RD, M.getPC() + 4);
     M.setPC(M.getPC() + extend_signal(I.Imm, 'J'));
+    printf("%08x %08x %08x\n",M.getPC(), I.Imm,extend_signal(I.Imm, 'J'));
   );
 
   IMPLEMENT_JMP(jalr,
@@ -312,29 +314,28 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
 
   IMPLEMENT(lw,
     M.setRegister(I.RD, M.getMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')).asI_);
-    
   );
 
   IMPLEMENT(lbu,
-    M.setRegister(I.RD, (uint32_t)M.getMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
+    M.setRegister(I.RD, (uint32_t)(uint8_t)M.getMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
   );
 
   IMPLEMENT(lhu,
-    M.setRegister(I.RD, (uint32_t)M.getMemHalfAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
+    M.setRegister(I.RD, (uint32_t)(uint16_t)M.getMemHalfAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
   );
 
   IMPLEMENT(sb,
-    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I'), (unsigned char) M.getRegister(I.RS2) & 0xFF);
+    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), (unsigned char) M.getRegister(I.RS2) & 0xFF);
   );
 
   IMPLEMENT(sh,
     uint16_t half = M.getRegister(I.RS2) & 0xFFFF;
-    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')    , (half)      & 0xFF);
-    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I') + 1, (half >> 8) & 0xFF);
+    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S')    , (half)      & 0xFF);
+    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') + 1, (half >> 8) & 0xFF);
   );
 
   IMPLEMENT(sw,
-    M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I'), M.getRegister(I.RS2));
+    M.setMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), M.getRegister(I.RS2));
   );
 
   IMPLEMENT(addi,
@@ -375,15 +376,15 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(add,
-      M.setRegister(I.RD, M.getRegister(I.RS1) + M.getRegister(I.RS2));
+    M.setRegister(I.RD, M.getRegister(I.RS1) + M.getRegister(I.RS2));
   );
 
   IMPLEMENT(sub,
-      M.setRegister(I.RD, M.getRegister(I.RS1) - M.getRegister(I.RS2));
+    M.setRegister(I.RD, M.getRegister(I.RS1) - M.getRegister(I.RS2));
   );
 
   IMPLEMENT(sll,
-      M.setRegister(I.RD, M.getRegister(I.RS1) << (M.getRegister(I.RS2) & 0x1F));
+    M.setRegister(I.RD, M.getRegister(I.RS1) << (M.getRegister(I.RS2) & 0x1F));
   );
 
   IMPLEMENT(slt,
@@ -395,7 +396,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(_xor,
-      M.setRegister(I.RD, M.getRegister(I.RS1) ^ M.getRegister(I.RS2));
+    M.setRegister(I.RD, M.getRegister(I.RS1) ^ M.getRegister(I.RS2));
   );
 
   IMPLEMENT(srl,
@@ -409,11 +410,11 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(_or,
-      M.setRegister(I.RD, M.getRegister(I.RS1) | M.getRegister(I.RS2));
+    M.setRegister(I.RD, M.getRegister(I.RS1) | M.getRegister(I.RS2));
   );
 
   IMPLEMENT(_and,
-      M.setRegister(I.RD, M.getRegister(I.RS1) & M.getRegister(I.RS2));
+    M.setRegister(I.RD, M.getRegister(I.RS1) & M.getRegister(I.RS2));
   );
 
   IMPLEMENT(fence,
@@ -489,107 +490,121 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(flw,
-    
+    M.setFloatRegister(I.RD, M.getMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S')).asF_);
   );
 
   IMPLEMENT(fsw,
-    
+    M.setMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), M.getFloatRegister(I.RS2));
   );
 
   IMPLEMENT(fmadd_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) * M.getFloatRegister(I.RS2) + M.getFloatRegister(I.RS3));
   );
 
   IMPLEMENT(fmsub_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) * M.getFloatRegister(I.RS2) - M.getFloatRegister(I.RS3));
   );
 
   IMPLEMENT(fnmsub_s,
-    
+    M.setFloatRegister(I.RD, -M.getFloatRegister(I.RS1) * M.getFloatRegister(I.RS2) + M.getFloatRegister(I.RS3));
   );
 
   IMPLEMENT(fnmadd_s,
-    
+    M.setFloatRegister(I.RD, -M.getFloatRegister(I.RS1) * M.getFloatRegister(I.RS2) - M.getFloatRegister(I.RS3));
   );
 
   IMPLEMENT(fadd_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) + M.getFloatRegister(I.RS2));
   );
 
   IMPLEMENT(fsub_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) - M.getFloatRegister(I.RS2));
   );
 
   IMPLEMENT(fmul_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) * M.getFloatRegister(I.RS2));
   );
 
   IMPLEMENT(fdiv_s,
-    
+    M.setFloatRegister(I.RD, M.getFloatRegister(I.RS1) / M.getFloatRegister(I.RS2));
   );
 
   IMPLEMENT(fsqrt_s,
-    
+    M.setFloatRegister(I.RD, sqrt(M.getFloatRegister(I.RS1)));
   );
 
   IMPLEMENT(fsgnj_s,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    float _RS2=M.getFloatRegister(I.RS2);
+    M.setFloatRegister(I.RD, ((_RS1 < 0) == (_RS2 < 0)) ? _RS1 : -_RS1);
   );
 
   IMPLEMENT(fsgnjn_s,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    float _RS2=M.getFloatRegister(I.RS2);
+    M.setFloatRegister(I.RD, ((_RS1 < 0) != (_RS2 < 0)) ? _RS1 : -_RS1);
   );
 
   IMPLEMENT(fsgnjx_s,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    float _RS2=M.getFloatRegister(I.RS2);
+    M.setFloatRegister(I.RD, ((_RS1 < 0) == (_RS2 < 0)) ? (_RS1<0?-_RS1:_RS1) : (_RS1>0?-_RS1:_RS1));
   );
 
   IMPLEMENT(fmin_s,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    float _RS2=M.getFloatRegister(I.RS2);
+    M.setFloatRegister(I.RD, _RS1 < _RS2 ? _RS1 : _RS2);
   );
 
   IMPLEMENT(fmax_s,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    float _RS2=M.getFloatRegister(I.RS2);
+    M.setFloatRegister(I.RD, _RS1 > _RS2 ? _RS1 : _RS2);
   );
 
   IMPLEMENT(fcvt_w_s,
-    
+    M.setRegister(I.RD, (int32_t) M.getFloatRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_wu_s,
-    
+    M.setRegister(I.RD, (uint32_t) M.getFloatRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fmv_x_w,
-    
+    float _RS1=M.getFloatRegister(I.RS1);
+    unsigned char* _CHR = reinterpret_cast<unsigned char*>(&_RS1);
+    M.setRegister(I.RD, *reinterpret_cast<uint32_t*>(_CHR));
   );
 
   IMPLEMENT(feq_s,
-    
+    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) == M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(flt_s,
-    
+    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) < M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fle_s,
-    
+    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) <= M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fclass_s,
-    
+    M.setRegister(I.RD, 0); // TODO
   );
 
   IMPLEMENT(fcvt_s_w,
-    
+    M.setFloatRegister(I.RD, (float) M.getRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_s_wu,
-    
+    M.setFloatRegister(I.RD, (float)(uint32_t) M.getRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fmv_w_x,
-    
+    uint32_t _RS1=M.getRegister(I.RS1);
+    unsigned char* _CHR = reinterpret_cast<unsigned char*>(&_RS1);
+    M.setFloatRegister(I.RD, *reinterpret_cast<float*>(_CHR));
   );
 
   IMPLEMENT(fld,

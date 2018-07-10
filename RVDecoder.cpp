@@ -389,9 +389,9 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
       break;
   }
 
-  std::cout << std::hex << W.asI_ << "\n";
+  std::cout << "Word: " <<  std::hex << W.asI_ << "\n"; // TODO tira
   if (I.Type == RVInstType::Null) {
-    std::cout << "Houston: we have a problem! Inst (" << std::hex << CodedInst << ") not implemented! " << ((W.asI_ >> 24) & 0x7F) << " \n";
+    std::cout << "Houston: we have a problem! Inst (" << std::hex << CodedInst << ") not implemented!\n";
     exit(1);
   }
   
