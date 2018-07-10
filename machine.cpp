@@ -125,9 +125,23 @@ dbt::Word Machine::getMemValueAt(uint32_t Addr) {
   return Bytes;
 }
 
+dbt::DWord Machine::getDMemValueAt(uint32_t Addr) {
+  uint64_t CorrectAddr = Addr - DataMemOffset;
+  DWord Bytes;
+  //Bytes.asI32_[0] = *((uint32_t*)(DataMemory.get() + CorrectAddr)); // TODO checar
+  //Bytes.asI32_[1] = *((uint32_t*)(DataMemory.get() + CorrectAddr + 4));
+  Bytes.asI_ = *((uint64_t*)(DataMemory.get() + CorrectAddr));
+  return Bytes;
+}
+
 void Machine::setMemValueAt(uint32_t Addr, uint32_t Value) {
   uint32_t CorrectAddr = Addr - DataMemOffset;
   *((uint32_t*)(DataMemory.get() + CorrectAddr)) = Value;
+}
+
+void Machine::setDMemValueAt(uint32_t Addr, uint64_t Value) {
+  uint64_t CorrectAddr = Addr - DataMemOffset;
+  *((uint64_t*)(DataMemory.get() + CorrectAddr)) = Value;
 }
 
 uint32_t Machine::getNumInst() {
@@ -154,7 +168,7 @@ int32_t Machine::getRegister(uint16_t R) {
 }
 
 float Machine::getFloatRegister(uint16_t R) {
-  return ((float*) Register)[R + 66];
+  return ((float*) Register)[R + 66]; // TODO TODO TODO deve ser 32 aqui!!!!
 }
 
 double Machine::getDoubleRegister(uint16_t R) {
@@ -247,6 +261,37 @@ int Machine::loadELF(const std::string ElfPath) {
     return 0;
 
   Elf_Half sec_num = reader.sections.size();
+
+
+
+{
+// Print ELF file sections info
+Elf_Half sec_num = reader.sections.size();
+std::cout << "Number of sections: " << sec_num << std::endl;
+for ( int i = 0; i < sec_num; ++i ) {
+const section* psec = reader.sections[i];
+std::cout << "  [" << i << "] " << psec->get_name() << "\t" << psec->get_size() << std::endl;
+// Access section's data
+const char* p = reader.sections[i]->get_data();
+if(psec->get_name() == ".text")
+  std::cout << p << "\n";
+}
+}
+
+
+
+// Print ELF file segments info
+Elf_Half seg_num = reader.segments.size();         
+std::cout << "Number of segments: " << seg_num << std::endl;
+for ( int i = 0; i < seg_num; ++i ) {
+const segment* pseg = reader.segments[i];      
+std::cout << "  [" << i << "] 0x" << std::hex<< pseg->get_flags()  << "\t0x" << pseg->get_virtual_address() << "\t0x" << pseg->get_file_size() << "\t0x" << pseg->get_memory_size() << std::endl;
+// Access segments's data
+//const char* p = reader.segments[i]->get_data();
+
+}
+
+
 
   uint32_t TotalDataSize = 0;
   uint32_t AddressOffset = 0;

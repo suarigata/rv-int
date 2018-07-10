@@ -426,7 +426,8 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(ecall,
-    
+    if (SyscallM.processSyscall(M))
+      return;
   );
 
   IMPLEMENT(ebreak,
@@ -490,7 +491,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(flw,
-    M.setFloatRegister(I.RD, M.getMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S')).asF_);
+    M.setFloatRegister(I.RD, M.getMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')).asF_);
   );
 
   IMPLEMENT(fsw,
@@ -578,15 +579,15 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(feq_s,
-    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) == M.getFloatRegister(I.RS2) ? 1 : 0));
+    M.setRegister(I.RD, (M.getFloatRegister(I.RS1) == M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(flt_s,
-    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) < M.getFloatRegister(I.RS2) ? 1 : 0));
+    M.setRegister(I.RD, (M.getFloatRegister(I.RS1) < M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fle_s,
-    M.setFloatRegister(I.RD, (M.getFloatRegister(I.RS1) <= M.getFloatRegister(I.RS2) ? 1 : 0));
+    M.setRegister(I.RD, (M.getFloatRegister(I.RS1) <= M.getFloatRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fclass_s,
@@ -602,113 +603,126 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(fmv_w_x,
-    uint32_t _RS1=M.getRegister(I.RS1);
-    unsigned char* _CHR = reinterpret_cast<unsigned char*>(&_RS1);
-    M.setFloatRegister(I.RD, *reinterpret_cast<float*>(_CHR));
+    //uint32_t _RS1=M.getRegister(I.RS1);
+    Word RCD;
+    RCD.asI_=M.getRegister(I.RS1);
+    //unsigned char* _CHR = reinterpret_cast<unsigned char*>(&_RS1);
+    //M.setFloatRegister(I.RD, *reinterpret_cast<float*>(_CHR));
+    M.setFloatRegister(I.RD, RCD.asF_);
   );
 
   IMPLEMENT(fld,
-    
+    M.setDoubleRegister(I.RD, M.getDMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')).asD_);
   );
 
   IMPLEMENT(fsd,
-    
+    M.setDMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), M.getDoubleRegister(I.RS2));
   );
 
   IMPLEMENT(fmadd_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) * M.getDoubleRegister(I.RS2) + M.getDoubleRegister(I.RS3));
   );
 
   IMPLEMENT(fmsub_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) * M.getDoubleRegister(I.RS2) - M.getDoubleRegister(I.RS3));
   );
 
   IMPLEMENT(fnmsub_d,
-    
+    M.setDoubleRegister(I.RD, -M.getDoubleRegister(I.RS1) * M.getDoubleRegister(I.RS2) + M.getDoubleRegister(I.RS3));
   );
 
   IMPLEMENT(fnmadd_d,
-    
+    M.setDoubleRegister(I.RD, -M.getDoubleRegister(I.RS1) * M.getDoubleRegister(I.RS2) - M.getDoubleRegister(I.RS3));
   );
 
   IMPLEMENT(fadd_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) + M.getDoubleRegister(I.RS2));
   );
 
   IMPLEMENT(fsub_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) - M.getDoubleRegister(I.RS2));
   );
 
   IMPLEMENT(fmul_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) * M.getDoubleRegister(I.RS2));
   );
 
   IMPLEMENT(fdiv_d,
-    
+    M.setDoubleRegister(I.RD, M.getDoubleRegister(I.RS1) / M.getDoubleRegister(I.RS2));
   );
 
   IMPLEMENT(fsqrt_d,
-    
+    M.setDoubleRegister(I.RD, sqrt(M.getDoubleRegister(I.RS1)));
   );
 
   IMPLEMENT(fsgnj_d,
-    
+    double _RS1=M.getDoubleRegister(I.RS1);
+    double _RS2=M.getDoubleRegister(I.RS2);
+    M.setDoubleRegister(I.RD, ((_RS1 < 0) == (_RS2 < 0)) ? _RS1 : -_RS1);
   );
 
   IMPLEMENT(fsgnjn_d,
-    
+    double _RS1=M.getDoubleRegister(I.RS1);
+    double _RS2=M.getDoubleRegister(I.RS2);
+    M.setDoubleRegister(I.RD, ((_RS1 < 0) != (_RS2 < 0)) ? _RS1 : -_RS1);
   );
 
   IMPLEMENT(fsgnjx_d,
-    
+    double _RS1=M.getDoubleRegister(I.RS1);
+    double _RS2=M.getDoubleRegister(I.RS2);
+    M.setDoubleRegister(I.RD, ((_RS1 < 0) == (_RS2 < 0)) ? (_RS1<0?-_RS1:_RS1) : (_RS1>0?-_RS1:_RS1));
   );
 
   IMPLEMENT(fmin_d,
-    
+    double _RS1=M.getDoubleRegister(I.RS1);
+    double _RS2=M.getDoubleRegister(I.RS2);
+    M.setDoubleRegister(I.RD, _RS1 < _RS2 ? _RS1 : _RS2);
   );
 
   IMPLEMENT(fmax_d,
-    
+    double _RS1=M.getDoubleRegister(I.RS1);
+    double _RS2=M.getDoubleRegister(I.RS2);
+    M.setDoubleRegister(I.RD, _RS1 > _RS2 ? _RS1 : _RS2);
   );
 
   IMPLEMENT(fcvt_s_d,
-    
+    M.setFloatRegister(I.RD, (float) M.getDoubleRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_d_s,
-    
+    M.setDoubleRegister(I.RD, (double) M.getFloatRegister(I.RS1));
   );
 
   IMPLEMENT(feq_d,
-    
+    M.setRegister(I.RD, (M.getDoubleRegister(I.RS1) == M.getDoubleRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(flt_d,
-    
+    M.setRegister(I.RD, (M.getDoubleRegister(I.RS1) < M.getDoubleRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fle_d,
-    
+    M.setRegister(I.RD, (M.getDoubleRegister(I.RS1) <= M.getDoubleRegister(I.RS2) ? 1 : 0));
   );
 
   IMPLEMENT(fclass_d,
-    
+    M.setRegister(I.RD, 0); // TODO
   );
 
   IMPLEMENT(fcvt_w_d,
-    
+    M.setRegister(I.RD, (int32_t) M.getDoubleRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_wu_d,
-    
+    M.setRegister(I.RD, (uint32_t) M.getDoubleRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_d_w,
-    
+    M.setDoubleRegister(I.RD, (double) M.getRegister(I.RS1)); // TODO
   );
 
   IMPLEMENT(fcvt_d_wu,
-    
+    M.setDoubleRegister(I.RD, (double)(uint32_t) M.getRegister(I.RS1)); // TODO
   );
 
   // --------------------------------------------------------------------------------------------------- //

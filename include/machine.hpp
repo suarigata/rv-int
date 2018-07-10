@@ -36,7 +36,7 @@ namespace dbt {
     float asF_;
   };
 
-  union QWord {
+  union DWord {
     char asC_[8];
     uint32_t asI32_[2];
     uint64_t asI_;
@@ -108,7 +108,9 @@ namespace dbt {
     uint8_t  getMemByteAt(uint32_t);
     uint16_t getMemHalfAt(uint32_t);
     Word     getMemValueAt(uint32_t);
+    DWord    getDMemValueAt(uint32_t);
     void     setMemValueAt(uint32_t, uint32_t);
+    void     setDMemValueAt(uint32_t, uint64_t);
 
     int32_t*  getRegisterPtr();
     uint32_t* getMemoryPtr();
