@@ -46,7 +46,7 @@ namespace dbt {
 
     typedef struct RVInst {
       RVInstType Type;
-      uint8_t RD, RS1, RS2, RS3, RM;
+      uint32_t RD, RS1, RS2, RS3, RM; // TODO pode mudar pra 8?
       int32_t Imm;
     } RVInst;
 

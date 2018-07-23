@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(riscv-int)
 
-set(CMAKE_CXX_FLAGS "-Ofast -Werror -Wall -Wextra -Wno-unused-function -std=c++17 -fno-rtti -DNDEBUG")
+set(CMAKE_CXX_FLAGS "-g -Ofast -Werror -Wall -Wextra -Wno-unused-function -std=c++17 -fno-rtti -DNDEBUG")
 set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Ofast")
 
 include_directories(include)

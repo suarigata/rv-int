@@ -25,7 +25,16 @@ uint64_t instacc = 0;
 //#define DEBUG_PRINT(Addr, Inst) std::cerr << "\n" << COLOR_CYAN <<  std::dec << (++instacc) <<" -- "<< std::hex << Addr << "\t" << RVPrinter::getString(Inst) << std::dec << COLOR_NONE << "\t";
 #else
 #define DEBUG_PRINT(Addr, Inst)\
-  std::cout << "Addr:" << Addr << "\n";
+  {\
+    std::cout << "Addr:" << std::hex << Addr << "\tImm: " << Inst.Imm\
+              << std::hex << " RD " << Inst.RD\
+              << std::hex << "\tRS1 " << Inst.RS1\
+              << std::hex << "\tRS2 " << Inst.RS2\
+              << std::hex << "\tRS3 " << Inst.RS3\
+              << std::hex << "\tRM " << Inst.RM\
+              << std::hex << " RD: " << M.getRegister(Inst.RD)  << "\n";\
+  }
+//TODO*/
 #endif
 
 #define SET_DISPACH(Addrs, Label, Offset)\
@@ -34,7 +43,7 @@ uint64_t instacc = 0;
     break;
 
 #define GOTO_NEXT\
-    DEBUG_PRINT(M.getPC(), getDecodedInst(M.getPC()))\
+    DEBUG_PRINT(M.getLastPC(), I)\
     goto *getDispatchValue(M.getPC());
 
 #define IMPLEMENT(Label, Code)\
@@ -252,7 +261,6 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   IMPLEMENT_JMP(jal,
     M.setRegister(I.RD, M.getPC() + 4);
     M.setPC(M.getPC() + extend_signal(I.Imm, 'J'));
-    printf("%08x %08x %08x\n",M.getPC(), I.Imm,extend_signal(I.Imm, 'J'));
   );
 
   IMPLEMENT_JMP(jalr,
@@ -262,44 +270,43 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT_BR(beq,
-    if(M.getRegister(I.RS1) == M.getRegister(I.RS2)){ // TODO +4 XXX ???
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+    if(M.getRegister(I.RS1) == M.getRegister(I.RS2)){
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bne,
     if(M.getRegister(I.RS1) != M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
-    
   );
 
   IMPLEMENT_BR(blt,
     if(M.getRegister(I.RS1) < M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bge,
     if(M.getRegister(I.RS1) >= M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bltu,
     if((uint32_t)M.getRegister(I.RS1) < (uint32_t)M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
   );
 
   IMPLEMENT_BR(bgeu,
     if((uint32_t)M.getRegister(I.RS1) >= (uint32_t)M.getRegister(I.RS2)){
-      M.setPC(M.getPC() + extend_signal(I.Imm, 'B') + 4);
+      M.setPC(M.getPC() + extend_signal(I.Imm, 'B'));
       GOTO_NEXT;
     }
   );
@@ -325,6 +332,7 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(sb,
+    std::cout << "sbmem: " << M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') << "\n";
     M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), (unsigned char) M.getRegister(I.RS2) & 0xFF);
   );
 
@@ -363,16 +371,16 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(slli,
-    M.setRegister(I.RD, M.getRegister(I.RS1) << (I.Imm & 0x1F));
+    M.setRegister(I.RD, M.getRegister(I.RS1) << (I.Imm & 0x3F));
   );
 
   IMPLEMENT(srli,
-    M.setRegister(I.RD, M.getRegister(I.RS1) >> (I.Imm & 0x1F));
+    M.setRegister(I.RD, M.getRegister(I.RS1) >> (I.Imm & 0x3F));
   );
 
   IMPLEMENT(srai,
     int32_t _REG=M.getRegister(I.RS1);
-    M.setRegister(I.RD, ((_REG & 0x80000000) ? (_REG >> (I.Imm & 0x1F)) | (0xFFFFFFFF << (32-(I.Imm & 0x1F))) : _REG >> (I.Imm & 0x1F)));
+    M.setRegister(I.RD, ((_REG & 0x80000000) ? (_REG >> (I.Imm & 0x3F)) | (0xFFFFFFFF << (32-(I.Imm & 0x3F))) : _REG >> (I.Imm & 0x3F)));
   );
 
   IMPLEMENT(add,

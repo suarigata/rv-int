@@ -44,7 +44,7 @@ void Machine::addDataMemory(uint32_t StartAddress, uint32_t Size, const char* Da
 }
 
 int Machine::setCommandLineArguments(std::string parameters) {
-  unsigned int sp = getRegister(29), totalSize=0, offset;
+  unsigned int sp = getRegister(2), totalSize=0, offset;
 
   std::istringstream iss(parameters);
   std::vector<std::string> argv(std::istream_iterator<std::string>{iss}, std::istream_iterator<std::string>());
@@ -78,6 +78,7 @@ uint32_t Machine::getLastPC() {
 }
 
 void Machine::incPC() {
+  LastPC=PC;
   PC += 4;
 }
 
@@ -120,6 +121,12 @@ uint16_t Machine::getMemHalfAt(uint32_t Addr) {
 
 dbt::Word Machine::getMemValueAt(uint32_t Addr) {
   uint32_t CorrectAddr = Addr - DataMemOffset;
+  if(Addr<DataMemOffset){
+    std::cout << "antes\n";
+  }
+  if(Addr>DataMemLimit){
+    std::cout << "depois\n";
+  }
   Word Bytes;
   Bytes.asI_ = *((uint32_t*)(DataMemory.get() + CorrectAddr));
   return Bytes;
@@ -164,11 +171,11 @@ int32_t Machine::getRegister(uint16_t R) {
   #ifdef PRINTREG
   std::cerr << "GET R[" << std::dec << R << "]: " << std::hex << Register[R] << ";  ";
   #endif
-  return Register[R];
+  return R ? Register[R] : 0;
 }
 
 float Machine::getFloatRegister(uint16_t R) {
-  return ((float*) Register)[R + 66]; // TODO TODO TODO deve ser 32 aqui!!!!
+  return ((float*) Register)[R + 32]; // TODO TODO TODO deve ser 32 aqui!!!!
 }
 
 double Machine::getDoubleRegister(uint16_t R) {
@@ -183,7 +190,7 @@ void Machine::setRegister(uint16_t R, int32_t V) {
 }
 
 void Machine::setFloatRegister(uint16_t R, float V) {
-  ((float*)Register)[R + 66] = V;
+  ((float*)Register)[R + 32] = V; // TODO era 66
 }
 
 void Machine::setDoubleRegister(uint16_t R, double V) {
@@ -262,37 +269,6 @@ int Machine::loadELF(const std::string ElfPath) {
 
   Elf_Half sec_num = reader.sections.size();
 
-
-
-{
-// Print ELF file sections info
-Elf_Half sec_num = reader.sections.size();
-std::cout << "Number of sections: " << sec_num << std::endl;
-for ( int i = 0; i < sec_num; ++i ) {
-const section* psec = reader.sections[i];
-std::cout << "  [" << i << "] " << psec->get_name() << "\t" << psec->get_size() << std::endl;
-// Access section's data
-const char* p = reader.sections[i]->get_data();
-if(psec->get_name() == ".text")
-  std::cout << p << "\n";
-}
-}
-
-
-
-// Print ELF file segments info
-Elf_Half seg_num = reader.segments.size();         
-std::cout << "Number of segments: " << seg_num << std::endl;
-for ( int i = 0; i < seg_num; ++i ) {
-const segment* pseg = reader.segments[i];      
-std::cout << "  [" << i << "] 0x" << std::hex<< pseg->get_flags()  << "\t0x" << pseg->get_virtual_address() << "\t0x" << pseg->get_file_size() << "\t0x" << pseg->get_memory_size() << std::endl;
-// Access segments's data
-//const char* p = reader.segments[i]->get_data();
-
-}
-
-
-
   uint32_t TotalDataSize = 0;
   uint32_t AddressOffset = 0;
   bool Started = false;
@@ -356,8 +332,8 @@ std::cout << "  [" << i << "] 0x" << std::hex<< pseg->get_flags()  << "\t0x" << 
     Register[i] = 0;
 
   uint32_t StackAddr = DataMemLimit-stackSize/4;
-  setRegister(29, StackAddr + (4 - StackAddr%4)); //StackPointer
-  setRegister(30, StackAddr + (4 - StackAddr%4)); //StackPointer
+  setRegister(2, StackAddr + (4 - StackAddr%4)); // StackPointer
+  setRegister(30, StackAddr + (4 - StackAddr%4)); // StackPointer TODO que isso?
 
   setPC(reader.get_entry());
 

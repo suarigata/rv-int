@@ -52,9 +52,6 @@ constexpr uint8_t getF7(Word W){
 
 EncodingType dbt::RVDecoder::getEncodingType(RVInstType InstType) {
   switch(InstType) {
-    case RVInstType::SLLI:
-    case RVInstType::SRLI:
-    case RVInstType::SRAI:
     case RVInstType::ADD:
     case RVInstType::SUB:
     case RVInstType::SLL:
@@ -126,6 +123,9 @@ EncodingType dbt::RVDecoder::getEncodingType(RVInstType InstType) {
     case RVInstType::XORI:
     case RVInstType::ORI:
     case RVInstType::ANDI:
+    case RVInstType::SLLI:
+    case RVInstType::SRLI:
+    case RVInstType::SRAI:
     case RVInstType::FENCE:
     case RVInstType::FENCE_I:
     case RVInstType::ECALL:
@@ -228,6 +228,11 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
   W.asI_ = CodedInst;
   uint8_t Op = W.asI_ & 0x7F;
   RVInst I;
+
+//I.RD=I.RS1=I.RS2=I.RS3=I.RM=I.Imm=0; // TODO pode tirar
+
+
+
   I.Type = RVInstType::Null;
   
   switch(Op){
@@ -389,7 +394,6 @@ RVInst dbt::RVDecoder::decode(uint32_t CodedInst) {
       break;
   }
 
-  std::cout << "Word: " <<  std::hex << W.asI_ << "\n"; // TODO tira
   if (I.Type == RVInstType::Null) {
     std::cout << "Houston: we have a problem! Inst (" << std::hex << CodedInst << ") not implemented!\n";
     exit(1);
