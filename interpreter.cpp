@@ -32,7 +32,8 @@ uint64_t instacc = 0;
               << std::hex << "\tRS2 " << Inst.RS2\
               << std::hex << "\tRS3 " << Inst.RS3\
               << std::hex << "\tRM " << Inst.RM\
-              << std::hex << " RD: " << M.getRegister(Inst.RD)  << "\n";\
+              << std::hex << " RD: " << M.getRegister(Inst.RD)\
+              << "\n HEAP END: " << M.getMemValueAt(0x22c4c).asI_ << "\n";\
   }
 //TODO*/
 #endif
@@ -312,15 +313,28 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(lb,
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "lbmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'I') << "\n";
     M.setRegister(I.RD, (int32_t)(int8_t)M.getMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
   );
 
   IMPLEMENT(lh,
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "lhmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'I') << "\n";
     M.setRegister(I.RD, (int32_t)(int16_t)M.getMemHalfAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')));
   );
 
   IMPLEMENT(lw,
+    if(M.getPC()==0x1c008 || M.getPC()==0x1c070 || M.getPC()==0x1c0ac)
+      std::cout << "Heapend_load: " << M.getMemValueAt(0x22c4c).asI_ << "\n";
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "lwmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'I') << "\n";
     M.setRegister(I.RD, M.getMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'I')).asI_);
+    if(M.getPC()==0x1c008 || M.getPC()==0x1c070 || M.getPC()==0x1c0ac)
+      std::cout << "Heapend_load_F: " << M.getMemValueAt(0x22c4c).asI_ << "\n";
   );
 
   IMPLEMENT(lbu,
@@ -332,18 +346,30 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(sb,
-    std::cout << "sbmem: " << M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') << "\n";
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "sbmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') << "\n";
     M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), (unsigned char) M.getRegister(I.RS2) & 0xFF);
   );
 
   IMPLEMENT(sh,
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "shmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') << "\n";
     uint16_t half = M.getRegister(I.RS2) & 0xFFFF;
     M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S')    , (half)      & 0xFF);
     M.setMemByteAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') + 1, (half >> 8) & 0xFF);
   );
 
   IMPLEMENT(sw,
+    if(M.getPC()==0x1c06c || M.getPC()==0x1c0bc)
+      std::cout << "Heapend: " << M.getMemValueAt(0x22c4c).asI_ << "\n";
+    if(I.RS1 == 3) // GP
+      std::cout << "GP (" << M.getRegister(3) << ") + (" << (~extend_signal(I.Imm, 'I'))+1 << ")\n";
+    std::cout << "swmem: " << std::hex << M.getRegister(I.RS1) + extend_signal(I.Imm, 'S') << "\n";
     M.setMemValueAt(M.getRegister(I.RS1) + extend_signal(I.Imm, 'S'), M.getRegister(I.RS2));
+    if(M.getPC()==0x1c06c || M.getPC()==0x1c0bc)
+      std::cout << "Heapend_F: " << M.getMemValueAt(0x22c4c).asI_ << "\n";
   );
 
   IMPLEMENT(addi,
@@ -426,11 +452,11 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(fence,
-    
+    std::cout << "FENCE--------------------------------\n";
   );
 
   IMPLEMENT(fence_i,
-    
+    std::cout << "FENCE.I--------------------------------\n";
   );
 
   IMPLEMENT(ecall,
@@ -439,31 +465,31 @@ void ITDInterpreter::dispatch(Machine& M, uint32_t StartAddrs, uint32_t EndAddrs
   );
 
   IMPLEMENT(ebreak,
-    
+    std::cout << "EBREAK--------------------------------\n";
   );
 
   IMPLEMENT(csrrw,
-    
+    std::cout << "CSRRW--------------------------------\n";
   );
 
   IMPLEMENT(csrrs,
-    
+    std::cout << "CSRRS--------------------------------\n";
   );
 
   IMPLEMENT(csrrc,
-    
+    std::cout << "CSRRC--------------------------------\n";
   );
 
   IMPLEMENT(csrrwi,
-    
+    std::cout << "CSRRWI--------------------------------\n";
   );
 
   IMPLEMENT(csrrsi,
-    
+    std::cout << "CSRRSI--------------------------------\n";
   );
 
   IMPLEMENT(csrrci,
-    
+    std::cout << "CSRRCI--------------------------------\n";
   );
 
   IMPLEMENT(mul,

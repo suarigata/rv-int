@@ -35,6 +35,8 @@ void Machine::allocDataMemory(uint32_t Offset, uint32_t TotalSize) {
   DataMemOffset = Offset;
   DataMemLimit = Offset + TotalSize;
   DataMemory = std::unique_ptr<char[]>(new char[TotalSize]);
+  std::cout << std::hex << "Offset: " << Offset << " TotalSize: " << TotalSize
+            << " DataLimit: " << DataMemLimit << "\n";
 }
 
 void Machine::addDataMemory(uint32_t StartAddress, uint32_t Size, const char* DataBuffer) {
@@ -105,11 +107,24 @@ dbt::Word Machine::getNextInst() {
 
 void Machine::setMemByteAt(uint32_t Addr, uint8_t Value) {
   uint32_t CorrectAddr = Addr - DataMemOffset;
+  if(Addr<DataMemOffset){
+    std::cout << "antes\n";
+  }
+  if(Addr>DataMemLimit){
+    std::cout << "depois\n";
+  }
+
   DataMemory[CorrectAddr] = Value;
 }
 
 uint8_t Machine::getMemByteAt(uint32_t Addr) {
   uint32_t CorrectAddr = Addr - DataMemOffset;
+  if(Addr<DataMemOffset){
+    std::cout << "antes\n";
+  }
+  if(Addr>DataMemLimit){
+    std::cout << "depois\n";
+  }
   return DataMemory[CorrectAddr];
 }
 
@@ -287,7 +302,7 @@ int Machine::loadELF(const std::string ElfPath) {
     if (psec->get_name() == ".text")
       Started = true;
   }
-
+  std::cout << std::hex <<  "data sem heapstack: " << TotalDataSize << "\n";
   allocDataMemory(AddressOffset, (TotalDataSize + stackSize + heapSize) + (4 - (TotalDataSize + stackSize + heapSize) % 4));
 
   std::unordered_map<uint32_t, std::string> SymbolNames;
@@ -317,6 +332,10 @@ int Machine::loadELF(const std::string ElfPath) {
       unsigned char other;
       for ( unsigned int j = 0; j < symbols.get_symbols_num(); ++j ) {
         symbols.get_symbol( j, name, value, size, bind, type, section_index, other );
+        if (name == "heap_end.1854"){
+          setMemValueAt(value, AddressOffset+heapSize);
+          std::cout << "HEAP END (" << value << ")" << getMemValueAt(value).asI_ << "\n"; // TODO tentei por mas ele zera
+        }
         if (type == 0 && name != "" && value != 0 && value < CodeMemLimit) {
           SymbolStartAddresses.insert(value);
           SymbolNames[value] = name;
@@ -333,7 +352,7 @@ int Machine::loadELF(const std::string ElfPath) {
 
   uint32_t StackAddr = DataMemLimit-stackSize/4;
   setRegister(2, StackAddr + (4 - StackAddr%4)); // StackPointer
-  setRegister(30, StackAddr + (4 - StackAddr%4)); // StackPointer TODO que isso?
+  setRegister(3, StackAddr + (4 - StackAddr%4)); // StackPointer TODO que isso? gp?
 
   setPC(reader.get_entry());
 

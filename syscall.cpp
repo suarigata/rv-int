@@ -32,6 +32,8 @@ static inline int64_t cpucycles(void) {
 int LinuxSyscallManager::processSyscall(Machine& M) {
   SyscallType SysTy = static_cast<SyscallType>(M.getRegister(17)); // TODO -4000? << Antigo
 
+  std::cout << "syscall n: " << SysTy << "\n";
+
   switch (SysTy) {
   case SyscallType::Exit:
     ExitStatus = M.getRegister(10);
@@ -112,9 +114,16 @@ int LinuxSyscallManager::processSyscall(Machine& M) {
 
     return 0;
   }
-  case SyscallType::Sbrk: { // TODO subimplemented
-    std::cout << "syscall sbrk a0: " << M.getRegister(10) << "\n";
-    M.setRegister(10,0);
+  case SyscallType::Brk: { // TODO subimplemented
+    /*
+    uint32_t gp=M.getRegister(3);
+    uint32_t a0=M.getRegister(10);
+    std::cout << "syscall sbrk a0: " << a0 << "\n";
+    if(a0)
+      {}//M.setRegister(3, a0);
+    std::cout << "GP on Sbrk syscall: " << gp << "\n";
+    M.setRegister(10, a0); // accept all and return new (a0)
+    */
     return 0;
   }
 
